@@ -17,9 +17,7 @@ let paddleX;
 let rightArrowPressed = false;
 let leftArrowPressed = false;
 
-const brickRowCount = 4; // easy level
-// const brickRowCount = 4; // meduim level
-// const brickRowCount = 4; // hard level
+const brickRowCount = 4;
 const brickColumnCount = 7;
 const brickWidth = 75;
 const brickHeight = 25;
@@ -52,9 +50,7 @@ window.onload = () => {
     
         assignBricks(bricks);
         
-        // interval = setInterval(draw, 8); // easy level
-        interval = setInterval(draw, 10); // meduim level
-        // interval = setInterval(draw, 12); // hard level
+        interval = setInterval(draw, 10);
     } else {
         alert('reload the page in case you want to play');
     }
