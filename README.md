@@ -1,6 +1,6 @@
 # Breakout game
 
-Semestral project 2D game Breakout (Arkanoid).
+2D Breakout (Arkanoid) is a block breaker arcade game. You have 3 lives to break all blocks. Good luck!
 
 ## Installation
 
