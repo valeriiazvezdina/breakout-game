@@ -252,7 +252,7 @@ class Ball {
                 {
                     const allBlocks = Array.from(document.querySelectorAll('.block'));
                     allBlocks[i].classList.remove('block');
-                    Block.blocks.splice(i,1);
+                    Block.blocks.splice(i, 1);
                     Ball.changeDirection();
                     score++;
                     scoreElement.innerHTML = score;
@@ -338,7 +338,7 @@ class Game {
         let score = document.querySelector('.score');
         score.style.display = 'flex';
 
-        Ball.timer = setInterval(Ball.move, 30);
+        Ball.timer = setInterval(Ball.move, 20);
     }
 
     static restart() {
