@@ -1,301 +1,390 @@
-// Variable for using canvas tag
-let canvas;
-
-// Initiliaze the context of canvas
-let context;
-
-// Coordinates of the ball
-let ballX;
-let ballY;
-
-// Delta change of the ball speed
-let ballDx = 2;
-let ballDy = -2;
-
-// Radius of the ball
-const ballRadius = 15;
-
-// Size of the paddle
-const paddleHeight = 15;
-const paddleWidth = 105;
-
-// Position of the paddle
-let paddleX;
-
-// Arrow key state variables
-let rightArrowPressed = false;
-let leftArrowPressed = false;
-
-// Brick grid dimensions and properties
-const brickRowCount = 4;
-const brickColumnCount = 7;
-const brickWidth = 75;
-const brickHeight = 25;
-const brickPadding = 15;
-const brickMarginTop = 30;
-const brickMarginLeft = 30;
-
-// Array to store brick grid
-let bricks = [];
-
-// Score variable
-let score = 0;
-
-// Lives variable
-let lives = 3;
-
-// Interval variable for game loop
-let interval;
-
-// Execute when the window is loaded
-window.onload = () => {
-    // Start only when user wants
-    if (confirm('start the game?')) {
-        // Get canvas and context
-        canvas = document.getElementById('canvas-game');
-        context = canvas.getContext('2d');
-    
-        // Initialize ball and paddle positions
-        ballX = canvas.width / 2;
-        ballY = canvas.height - 30;
-        paddleX = (canvas.width - paddleWidth) / 2;
-    
-        // Set up event listeners for keyboard and mouse input
-        document.addEventListener('keydown', keyDownHandler, false);
-        document.addEventListener('keyup', keyUpHandler, false);
-        document.addEventListener("mousemove", mouseMoveHandler, false);
-    
-        // Initialize bricks
-        assignBricks(bricks);
-        
-        // Start game loop
-        interval = setInterval(draw, 10);
-    } else {
-        // If user chooses not to start, provide a message
-        alert('reload the page in case you want to play');
-    }
-}
-
-/** Initialize brick positions and status
- * @param bricks - brick grid
+/**
+ * Accessing element of the grid
  */
-function assignBricks(bricks) {
-    for (let i = 0; i < brickColumnCount; i++) {
-        bricks[i] = [];
-        for (let j = 0; j < brickRowCount; j++) {
-            bricks[i][j] = { x: 0, y: 0, status: 1 };
+const grid = document.querySelector('.grid');
+
+/**
+ * Grid size
+ */
+const gridWidth = 560;
+const gridHeight = 300;
+
+/**
+ * Accessing element of the score
+ */
+const scoreElement = document.querySelector('.score');
+
+/**
+ * Amount of score
+ */
+let score = +scoreElement.innerText;
+
+/**
+ * Class defining a block element
+ */
+class Block {
+    /**
+     * All blocks ( 5 rows, 5 cols )
+     */
+    static blocks = [];
+    /**
+     * Size of blocks
+     */
+    static size = 25;
+    /**
+     * Length of the row of blocks
+     */
+    static rowLength = 5;
+    /**
+    * Size of one block
+    */
+    static width = 100;
+    static height = 20;
+    /**
+     * Assigns coordinates of the block corners
+     * @param {x} x coordinate of the bottom left block corner
+     * @param {y} y coordinate of the bottom left block corner
+     */
+    constructor(x, y) {
+        this.bottomLeft = [ x, y ];
+        this.bottomRight = [ x + Block.width, y ];
+        this.topLeft = [ x, y + Block.height ];
+        this.topRight = [ x + Block.width, y + Block.height ];
+    }
+    /**
+     * Calculates coordinates for each block
+     */
+    static assignBlockCoordinates() {
+        const initialX = 10;
+        const dx = 110;
+    
+        const initialY = 270;
+        const dy = 30;
+
+        let x = initialX;
+        let y = initialY;
+    
+        for (let i = 0; i < Block.size; i++) {
+            if (i && i % 5 === 0) {
+                y -= dy;
+                x = initialX;
+            }
+            Block.blocks[i] = new Block(x, y);
+            x += dx;
+        }
+    }
+    /**
+     * Creates a new block with applied some styles
+     * @param {left} left 
+     * @param {bottom} bottom
+     */
+    static createBlock(left, bottom) {
+        const block = document.createElement('div');
+    
+        block.classList.add('block');
+    
+        block.style.left = left + 'px';
+        block.style.bottom = bottom + 'px';
+    
+        grid.appendChild(block);
+    }
+    /**
+     * Creates an array of blocks
+     */
+    static createBlocks() {
+        Block.assignBlockCoordinates();
+
+        for (let i = 0; i < Block.size; i++) {
+            const left = Block.blocks[i].bottomLeft[0];
+            const bottom = Block.blocks[i].bottomLeft[1];
+            Block.createBlock(left, bottom);
         }
     }
 }
 
 /**
- * Handle key down events
- * @param event 
+ * Class defining a paddle element
  */
-function keyDownHandler(event) {
-    if (event.key === "Right" || event.key === "ArrowRight") {
-        rightArrowPressed = true;
-    } else if (event.key === "Left" || event.key === "ArrowLeft") {
-        leftArrowPressed = true;
+class Paddle {
+    /**
+     *  Paddle width
+     */
+    static width = 100;
+    /**
+     * Initial paddle coordinates
+     */
+    static startPosition = [
+        230, 10
+    ];
+    /**
+     * Current paddle coordinates
+     */
+    static currentPosition = Paddle.startPosition;
+    /**
+     * Creates paddle
+     * @returns paddle element
+     */
+    static create() {
+        const paddle = document.createElement('div');
+        paddle.classList.add('paddle');
+        Paddle.assignCoordinates(paddle);
+        grid.appendChild(paddle);
+        return paddle;
     }
-}
-
-/**
- * Handle key up events
- * @param event 
- */
-function keyUpHandler(event) {
-    if (event.key === "Right" || event.key === "ArrowRight") {
-        rightArrowPressed = false;
-    } else if (event.key === "Left" || event.key === "ArrowLeft") {
-        leftArrowPressed = false;
+    /**
+     * Assigns current paddle position
+     * @param {HTMLDivElement} paddle 
+     */
+    static assignCoordinates(paddle) {
+        if (paddle) {
+            paddle.style.left = Paddle.currentPosition[0] + 'px';
+            paddle.style.bottom = Paddle.currentPosition[1] + 'px';
+        }
     }
 }
 
 /**
  * Handles mouse movement events
- * @param event 
+ * @param {event} event 
  */
 function mouseMoveHandler(event) {
-    const relativeX = event.clientX - canvas.offsetLeft;
-    if (relativeX > 0 && relativeX < canvas.width) {
-        paddleX = relativeX - paddleWidth / 2;
+    /**
+     * Center paddle position
+     */
+    const relativeX = event.clientX - grid.getBoundingClientRect().left - Paddle.width / 2;
+    
+    if (relativeX > 0 && relativeX < gridWidth - Paddle.width) {
+        Paddle.currentPosition[0] = relativeX;
+        Paddle.assignCoordinates(paddle);
     }
 }
 
-/**
- * Draws the ball
- */
-function drawBall() {
-    // Begins a new path (sequence of lines, curves, and etc.)
-    context.beginPath();
-    // Adds a circle to the path
-    context.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
-    // Sets up properties to the text 
-    context.fillStyle = 'red';
-    // Fills the current path
-    context.fill();
-    // Closes the path (sequence of lines, curves, and etc.)
-    context.closePath();
-}
-
-/**
- * Draws the paddle
- */
-function drawPaddle() {
-    // Begins a new path (sequence of lines, curves, and etc.)
-    context.beginPath();
-    // Adds a rectangle to the path
-    context.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
-    // Sets up properties to the text 
-    context.fillStyle = 'red';
-    // Fills the current path
-    context.fill();
-    // Closes the path (sequence of lines, curves, and etc.)
-    context.closePath();
-}
-
-/**
- * Draws the bricks
- */
-function drawBricks() {
-    for (let i = 0; i < brickColumnCount; i++) {
-        for (let j = 0; j < brickRowCount; j++) {
-            if (bricks[i][j].status === 1) {
-                const brickX = i * (brickWidth + brickPadding) + brickMarginLeft;
-                const brickY = j * (brickHeight + brickPadding) + brickMarginTop;
-                bricks[i][j].x = brickX;
-                bricks[i][j].y = brickY;
-                // Begins a new path (sequence of lines, curves, and etc.)
-                context.beginPath();
-                // Adds a rectangle to the path
-                context.rect(brickX, brickY, brickWidth, brickHeight);
-                // Sets up properties to the text 
-                context.fillStyle = 'red';
-                // Fills the current path
-                context.fill();
-                // Closes the path (sequence of lines, curves, and etc.)
-                context.closePath();
-            }
-        }
+class Ball {
+    /**
+     * Initial ball coordinates
+     */
+    static startPosition = [
+        (220 + Paddle.width / 2), 40
+    ];
+    /**
+     * Current ball coordinates
+     */
+    static currentPosition = Ball.startPosition;
+    /**
+     * Ball moving deltas (initial directions)
+     */
+    static dx = -2;
+    static dy = 2;
+    /**
+     * Ball diameter
+     */
+    static diameter = 20;
+    /**
+     * Timer instance for ball moving
+     */
+    static timer;
+    /**
+     * Creates ball
+     * @returns ball HTML element
+     */
+    static create() {
+        const ball = document.createElement('div');
+        ball.classList.add('ball');
+        Ball.assignCoordinates(ball);
+        grid.appendChild(ball);
+        return ball;
     }
-}  
-
-/**
- * Checks collisions of the ball with bricks
- */
-function collisionDetection() {
-    for (let i = 0; i < brickColumnCount; i++) {
-        for (let j = 0; j < brickRowCount; j++) {
-            const b = bricks[i][j];
-            if (b.status === 1) {
-                if (ballX > b.x && ballX < b.x + brickWidth && ballY > b.y && ballY < b.y + brickHeight) {
-                    ballDy = -ballDy;
-                    b.status = 0;
+    static delete() {
+        const ball = document.querySelector('.ball');
+        ball.remove();
+    }
+    /**
+     * Assigns ball coordinates
+     * @param {HTMLDivElement} ball 
+     */
+    static assignCoordinates(ball) {
+        ball.style.left = Ball.currentPosition[0] + 'px';
+        ball.style.bottom = Ball.currentPosition[1] + 'px';
+    }
+    /**
+     * Moves ball
+     */
+    static move() {
+        Ball.currentPosition[0] += Ball.dx;
+        Ball.currentPosition[1] += Ball.dy;
+        Ball.assignCoordinates(ball);
+        Ball.collisionCheck();
+    }
+    /**
+     * Changes ball direction after collision
+     */
+    static changeDirection() {
+        if ((Ball.dx > 0) && (Ball.dy > 0)) {
+            Ball.dy = -2;
+            return;
+          }
+          if ((Ball.dx > 0) && (Ball.dy < 0)) {
+            Ball.dx = -2;
+            return;
+          }
+          if ((Ball.dx < 0) && (Ball.dy < 0)) {
+            Ball.dy = 2;
+            return;
+          }
+          if ((Ball.dx < 0) && (Ball.dy > 0)) {
+            Ball.dx = 2;
+            return;
+          }
+    }
+    /**
+     * Checks collisions with walls, blocks and paddle
+     */
+    static collisionCheck() {
+        /**
+         * Block collision
+         */
+        for (let i = 0; i < Block.blocks.length; i++) {
+                const currentBlock = Block.blocks[i];
+                if (
+                    (Ball.currentPosition[0] > currentBlock.bottomLeft[0] && Ball.currentPosition[0] < currentBlock.bottomRight[0]) &&
+                    ((Ball.currentPosition[1] + Ball.diameter) > currentBlock.bottomLeft[1] && Ball.currentPosition[1] < currentBlock.topLeft[1])
+                    )
+                {
+                    const allBlocks = Array.from(document.querySelectorAll('.block'));
+                    allBlocks[i].classList.remove('block');
+                    Block.blocks.splice(i,1);
+                    Ball.changeDirection();
                     score++;
-                    if (score === brickRowCount * brickColumnCount) {
-                        alert("YOU WIN, CONGRATULATIONS!");
-                        // Reloads the page
-                        document.location.reload();
-                        // Needed for Chrome to end game
-                        clearInterval(interval);
+                    scoreElement.innerHTML = score;
+
+                    if (Block.blocks.length == 0) {
+                        clearInterval(this.timer);
+                        Game.win();
+                        document.removeEventListener('mousemove', mouseMoveHandler);
                     }
                 }
-            }
+        }
+        /**
+         * Wall colision
+         */
+        if (
+            Ball.currentPosition[0] >= (gridWidth - Ball.diameter) ||
+            Ball.currentPosition[0] <= 0 ||
+            Ball.currentPosition[1] >= (gridHeight - Ball.diameter)
+            ) {
+            Ball.changeDirection();
+        }
+        /**
+         * Bottom colision
+         */
+        if (Ball.currentPosition[1] <= 0) {
+            clearInterval(this.timer);
+            Game.stop();
+            document.removeEventListener('mousemove', mouseMoveHandler);
+        }
+        /**
+         * Paddle collision
+         */
+        if (
+            (
+                Ball.currentPosition[0] > Paddle.currentPosition[0] && Ball.currentPosition[0] < Paddle.currentPosition[0] + Block.width
+            ) 
+            &&
+            (
+                Ball.currentPosition[1] > Paddle.currentPosition[1] && Ball.currentPosition[1] < Paddle.currentPosition[1] + Block.height
+            ) 
+        ) {
+            Ball.changeDirection();
         }
     }
 }
 
 /**
- * Displays the gamer's score
+ * Creating the block grid
  */
-function drawScore() {
-    // Sets up properties to the text 
-    context.font = '16 px Arial';
-    context.fillStyle = 'black';
-    // Draws filled text on the canvas
-    context.fillText(`Score: ${score}`, 8, 20);
-}
 
 /**
- * Displays the current amount of gamer's lives
+ * Creating ball HTML element instance
  */
-function drawLives() {
-    // Sets up properties to the text 
-    context.font = '16px Arial';
-    context.fillStyle = 'black';
-    // Draws filled text on the canvas
-    context.fillText(`Lives: ${lives}`, canvas.width - 65, 20);
-}
-  
+let ball;
+
 /**
- * Main function that starts the game loop
+ * Creating paddle HTML element instance
  */
-function draw() {
-    // Clears the specified rectangular area of the canvas
-    context.clearRect(0, 0, canvas.width, canvas.height);
+let paddle;
 
-    // Running all drawing functions
-    drawBricks();
-    drawBall();
-    drawPaddle();
-    drawScore();
-    drawLives();
+/**
+ * Starting listening mouse move event
+ */
+document.addEventListener('mousemove', mouseMoveHandler, false);
 
-    // Running collisions check
-    collisionDetection();
+/**
+ * Class defining the game
+ */
+class Game {
+    static start() {
+        Block.createBlocks();
 
-    // Bounce the ball off the walls
-    if(ballX + ballDx > (canvas.width - ballRadius) || ballX + ballDx < ballRadius) {
-        ballDx = -ballDx;
+        ball = Ball.create();
+
+        paddle = Paddle.create();
+
+        const containerGrid = document.querySelector('.container-grid');
+        containerGrid.style.display = 'flex';
+
+        const startGameWindow = document.querySelector('.start-game-window');
+        startGameWindow.style.display = 'none';
+
+        let score = document.querySelector('.score');
+        score.style.display = 'flex';
+
+        Ball.timer = setInterval(Ball.move, 30);
     }
 
-    // Bounce the ball off the top wall
-    if(ballY + ballDy < ballRadius) {
-        ballDy = -ballDy;
+    static restart() {
+        location.reload();
     }
 
-    // Check if the ball hits the paddle or goes out of the bottom
-    else if(ballY + ballDy > (canvas.height - ballRadius)) {
-        if(ballX > paddleX && ballX < paddleX + paddleWidth) {
-            ballDy = -ballDy;
-        }
-        else {
-            lives--;
-            if (!lives) {
-                alert("GAME OVER");
-                // Reloads the page
-                document.location.reload();
-                // Needed for Chrome to end game
-                clearInterval(interval);
-            } else {
-                // Reset ball and paddle positions
-                ballX = canvas.width / 2;
-                ballY = canvas.height - 30;
-                ballDx = 2;
-                ballDy = -2;
-                paddleX = (canvas.width - paddleWidth) / 2;
-            }            
-        }
+    static stop() {
+        const containerGrid = document.querySelector('.container-grid');
+        containerGrid.style.display = 'none';
+
+        const gameOverWindow = document.querySelector('.game-over-window');
+        gameOverWindow.style.display = 'flex';
+
+        const score = document.querySelector('.score');
+        score.style.display = 'none';
+
+        document.removeEventListener('mousemove', mouseMoveHandler);
     }
 
-    // Move the paddle to the right
-    if (rightArrowPressed) {
-        paddleX += 7;
-        if (paddleX + paddleWidth > canvas.width) {
-            paddleX = (canvas.width - paddleWidth);
-        }
-    } 
-    
-    // Move the paddle to the left
-    if (leftArrowPressed) {
-        paddleX -= 7;
-        if (paddleX < 0) {
-            paddleX = 0;
-        }
+    static win() {
+        const containerGrid = document.querySelector('.container-grid');
+        containerGrid.style.display = 'none';
+
+        const winWindow = document.querySelector('.win-window');
+        winWindow.style.display = 'flex';
+
+        const score = document.querySelector('.score');
+        score.style.display = 'none';
+        
+        document.removeEventListener('mousemove', mouseMoveHandler);
     }
-    
-    // Move the ball
-    ballX += ballDx;
-    ballY += ballDy;
+
+    static cancel() {
+        const startGameWindow = document.querySelector('.start-game-window');
+        startGameWindow.style.display = 'none';
+
+        const gameOverWindow = document.querySelector('.game-over-window');
+        gameOverWindow.style.display = 'none';
+
+        const winWindow = document.querySelector('.win-window');
+        winWindow.style.display = 'none';
+        
+        const container = document.querySelector('.container');
+        container.innerHTML = `
+            <h2>Click on Spongebob if you changed your mind :(</h2>
+            <img src='sad-spongebob.jpg' style='margin-top:20px;' onclick='Game.restart()'>
+        `;
+    }
 }
