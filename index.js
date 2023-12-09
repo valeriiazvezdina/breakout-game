@@ -24,7 +24,7 @@ let score = +scoreElement.innerText;
  */
 class Block {
     /**
-     * All blocks ( 5 rows, 5 cols )
+     * All blocks
      */
     static blocks = [];
     /**
@@ -159,6 +159,9 @@ function mouseMoveHandler(event) {
     }
 }
 
+/**
+ * Class defining a ball element
+ */
 class Ball {
     /**
      * Initial ball coordinates
@@ -193,10 +196,6 @@ class Ball {
         Ball.assignCoordinates(ball);
         grid.appendChild(ball);
         return ball;
-    }
-    static delete() {
-        const ball = document.querySelector('.ball');
-        ball.remove();
     }
     /**
      * Assigns ball coordinates
@@ -257,6 +256,9 @@ class Ball {
                     score++;
                     scoreElement.innerHTML = score;
 
+                    /**
+                     * If all blocks are destroyed -> show win
+                     */
                     if (Block.blocks.length == 0) {
                         clearInterval(this.timer);
                         Game.win();
@@ -275,7 +277,7 @@ class Ball {
             Ball.changeDirection();
         }
         /**
-         * Bottom colision
+         * Bottom colision -> show game over
          */
         if (Ball.currentPosition[1] <= 0) {
             clearInterval(this.timer);
@@ -300,16 +302,12 @@ class Ball {
 }
 
 /**
- * Creating the block grid
- */
-
-/**
- * Creating ball HTML element instance
+ * Ball HTML element instance
  */
 let ball;
 
 /**
- * Creating paddle HTML element instance
+ * Paddle HTML element instance
  */
 let paddle;
 
@@ -322,65 +320,123 @@ document.addEventListener('mousemove', mouseMoveHandler, false);
  * Class defining the game
  */
 class Game {
+    /**
+     * Starts the game
+     */
     static start() {
+        /**
+         * Creating blocks grid
+         */
         Block.createBlocks();
-
+        /**
+         * Creating a ball
+         */
         ball = Ball.create();
-
+        /**
+         * Creating a paddle
+         */
         paddle = Paddle.create();
 
+        /**
+         * Shows game grid
+         */
         const containerGrid = document.querySelector('.container-grid');
         containerGrid.style.display = 'flex';
 
+
+        /**
+         * Hides start window
+         */
         const startGameWindow = document.querySelector('.start-game-window');
         startGameWindow.style.display = 'none';
 
+        /**
+         * Shows score
+         */
         let score = document.querySelector('.score');
         score.style.display = 'flex';
 
+        /**
+         * Setts time interval for game
+         */
         Ball.timer = setInterval(Ball.move, 20);
     }
-
+    /**
+     * Restarts the game by reloading the page
+     */
     static restart() {
         location.reload();
     }
-
+    /**
+     * Stops the game after game over and shows game over window
+     */
     static stop() {
+        /**
+         * Hides game grid
+         */
         const containerGrid = document.querySelector('.container-grid');
         containerGrid.style.display = 'none';
-
+        /**
+         * Shows game over window
+         */
         const gameOverWindow = document.querySelector('.game-over-window');
         gameOverWindow.style.display = 'flex';
-
+        /**
+         * Hides score
+         */
         const score = document.querySelector('.score');
         score.style.display = 'none';
-
+        /**
+         * Remove event listener for mouse moving
+         */
         document.removeEventListener('mousemove', mouseMoveHandler);
     }
-
+    /**
+     * Shows win window
+     */
     static win() {
+        /**
+         * Hides game grid
+         */
         const containerGrid = document.querySelector('.container-grid');
         containerGrid.style.display = 'none';
-
+        /**
+         * Shows win window
+         */
         const winWindow = document.querySelector('.win-window');
         winWindow.style.display = 'flex';
-
+        /**
+         * Hides score
+         */
         const score = document.querySelector('.score');
         score.style.display = 'none';
-        
+        /**
+         * Remove event listener for mouse moving
+         */
         document.removeEventListener('mousemove', mouseMoveHandler);
     }
-
+    /**
+     * Handles cancel button
+     */
     static cancel() {
+        /**
+         * Hides start window
+         */
         const startGameWindow = document.querySelector('.start-game-window');
         startGameWindow.style.display = 'none';
-
+        /**
+         * Hides game over window
+         */
         const gameOverWindow = document.querySelector('.game-over-window');
         gameOverWindow.style.display = 'none';
-
+        /**
+         * Hides win window
+         */
         const winWindow = document.querySelector('.win-window');
         winWindow.style.display = 'none';
-        
+        /**
+         * Shows sad picture
+         */
         const container = document.querySelector('.container');
         container.innerHTML = `
             <h2>Click on Spongebob if you changed your mind :(</h2>
