@@ -1,6 +1,6 @@
 # Breakout game
 
-2D Breakout (Arkanoid) is a block breaker arcade game. You have 3 lives to break all blocks. Good luck!
+2D Breakout (Arkanoid) is a block-breaker arcade game. You have 3 lives to break all blocks. Good luck!
 
 ## Installation
 
@@ -23,3 +23,6 @@ Open the folder with the code in VSCode. Then you download the Live Server exten
 
 ### HTML
 Since you cloned the repo, you will have a folder. Find the "index.html" file and "Open With..." the browser (I recommend using Google Chrome, for that, you need to install it and make it as default browser). Next, the browser with the game will be opened, and then just play!
+
+### Web
+Go to the link https://valeriiazvezdina.github.io/ and enjoy the game!
