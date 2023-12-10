@@ -16,7 +16,7 @@ git@github.com:valeriiazvezdina/breakout-game.git
 
 ## Usage
 
-To play the game you need to run the HTML file. There are at least two ways, how to do it.
+To play the game you need to run the HTML file. There are at least three ways, how to do it.
 
 ### VSCode + Live Server
 Open the folder with the code in VSCode. Then you download the Live Server extension. Since it has been installed, there will be a "Go Live" on the right-down corner. Click it and you will be redirected to the browser (I recommend using Google Chrome, for that, you need to install it and make it as default browser). Then play!
