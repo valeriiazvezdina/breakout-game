@@ -7,11 +7,11 @@
 Clone this repo to your local machine using HTTPS:
 
 ```bash
-https://github.com/valeriiazvezdina/breakout-game.git
+https://github.com/valeriiazvezdina/valeriiazvezdina.github.io.git
 ```
 or using SSH:
 ```bash
-git@github.com:valeriiazvezdina/breakout-game.git
+git@github.com:valeriiazvezdina/valeriiazvezdina.github.io.git
 ```
 
 ## Usage
