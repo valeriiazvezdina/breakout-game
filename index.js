@@ -111,6 +111,10 @@ class Paddle {
      */
     static width = 100;
     /**
+     * Paddle height
+     */
+    static height = 20;
+    /**
      * Initial paddle coordinates
      */
     static startPosition = [
@@ -221,19 +225,19 @@ class Ball {
         if ((Ball.dx > 0) && (Ball.dy > 0)) {
             Ball.dy = -2;
             return;
-          }
+        }
           if ((Ball.dx > 0) && (Ball.dy < 0)) {
             Ball.dx = -2;
             return;
-          }
+        }
           if ((Ball.dx < 0) && (Ball.dy < 0)) {
             Ball.dy = 2;
             return;
-          }
+        }
           if ((Ball.dx < 0) && (Ball.dy > 0)) {
             Ball.dx = 2;
             return;
-          }
+        }
     }
     /**
      * Checks collisions with walls, blocks and paddle
@@ -245,8 +249,8 @@ class Ball {
         for (let i = 0; i < Block.blocks.length; i++) {
                 const currentBlock = Block.blocks[i];
                 if (
-                    (Ball.currentPosition[0] > currentBlock.bottomLeft[0] && Ball.currentPosition[0] < currentBlock.bottomRight[0]) &&
-                    ((Ball.currentPosition[1] + Ball.diameter) > currentBlock.bottomLeft[1] && Ball.currentPosition[1] < currentBlock.topLeft[1])
+                    (Ball.currentPosition[0] >= currentBlock.bottomLeft[0] && Ball.currentPosition[0] <= currentBlock.bottomRight[0]) &&
+                    ((Ball.currentPosition[1] + Ball.diameter) >= currentBlock.bottomLeft[1] && Ball.currentPosition[1] <= currentBlock.topLeft[1])
                     )
                 {
                     const allBlocks = Array.from(document.querySelectorAll('.block'));
@@ -288,14 +292,19 @@ class Ball {
          * Paddle collision
          */
         if (
-            (
-                Ball.currentPosition[0] > Paddle.currentPosition[0] && Ball.currentPosition[0] < Paddle.currentPosition[0] + Block.width
-            ) 
-            &&
-            (
-                Ball.currentPosition[1] > Paddle.currentPosition[1] && Ball.currentPosition[1] < Paddle.currentPosition[1] + Block.height
-            ) 
+            Ball.currentPosition[0] + Ball.diameter >= Paddle.currentPosition[0] &&
+            Ball.currentPosition[0] <= Paddle.currentPosition[0] + Paddle.width &&
+            Ball.currentPosition[1] <= Paddle.currentPosition[1] + Block.height &&
+            Ball.currentPosition[1] >= Paddle.currentPosition[1]
         ) {
+            /**
+             * In order to avoid stucking in paddle
+             */
+            Ball.currentPosition[1] = Paddle.currentPosition[1] + Block.height;
+
+            Ball.dx *= -1;
+
+            Ball.changeDirection();
             Ball.changeDirection();
         }
     }
